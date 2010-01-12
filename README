@@ -1,0 +1,45 @@
+HasOneAuthenticatedResource
+=========================
+
+This plugin allows you to access resources using ActiveResource without needing a static single set of credentials.  Credentials can be pulled in from the database (or anywhere else) and can be different depending on the model instance doing the request.
+
+Example
+=======
+
+create_table "accounts", do |t|
+  t.string   "tracker_token"
+  t.string   "tempo_user"
+  t.string   "tempo_password"
+  t.string   "blinksale_user"
+  t.string   "blinksale_password"
+  t.string   "highrise_token"
+  t.datetime "created_at"
+  t.datetime "updated_at"
+end
+
+
+class Account < ActiveRecord::Base
+  has_one_authenticated_resource :tracker_projects, :headers => { 'X-TrackerToken' => :tracker_token }
+  has_one_authenticated_resource :tracker_stories,  :headers => { 'X-TrackerToken' => :tracker_token }
+  
+  has_one_authenticated_resource :tempo_entries,  :user => :tempo_user, :password => :tempo_password
+  has_one_authenticated_resource :tempo_projects, :user => :tempo_user, :password => :tempo_password
+  has_one_authenticated_resource :tempo_reports,  :user => :tempo_user, :password => :tempo_password
+  
+  has_one_authenticated_resource :highrise_emails, :site => :highrise_site
+  has_one_authenticated_resource :highrise_kases,  :site => :highrise_site
+  
+  has_one_authenticated_resource :blinksale_invoices, :user => :blinksale_user, :password => :blinksale_password
+  has_one_authenticated_resource :blinksale_clients, :user => :blinksale_user, :password => :blinksale_password
+
+  private
+  def highrise_site
+    "http://#{self.highrise_token}.highrisehq.com/"
+  end
+  
+end
+
+
+Copyright (c) 2010 Expected Behavior, released under the MIT license
+
+# need to deal with belongs_to
