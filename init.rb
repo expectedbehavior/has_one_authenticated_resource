@@ -18,13 +18,21 @@ module AuthenticatedResourceMethods
         r_class = Class.new(base)
         self.class.const_set(r_class_name, r_class)
         
-        r_class.cattr_accessor(:account)
-        r_class.account = self
+        #make it so we can get back to the model instance that created us
+        r_class.cattr_accessor(:authentication_source_id)
+        r_class.cattr_accessor(:authentication_source_name)
+        r_class.authentication_source_id = self.id
+        r_class.authentication_source_name = self.class.name
+        r_class.class_eval do
+          def self.authentication_source
+            Object.const_get(self.authentication_source_name).find(self.authentication_source_id)
+          end
+        end
+        
         r_class.element_name = base.element_name
-
-        r_class.user     = self.send(options[:user])     if options[:user]
-        r_class.password = self.send(options[:password]) if options[:password]
-        r_class.site     = self.send(options[:site])     if options[:site]
+        r_class.user         = self.send(options[:user])     if options[:user]
+        r_class.password     = self.send(options[:password]) if options[:password]
+        r_class.site         = self.send(options[:site])     if options[:site]
         r_class.headers.merge!(AuthenticatedResourceHelpers.headers_from_options(self, options)) if options[:headers]
       end
       
