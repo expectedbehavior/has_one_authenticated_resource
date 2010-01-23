@@ -3,7 +3,7 @@ module AuthenticatedResourceMethods
   class AuthenticatedResourceHelpers
     def self.headers_from_options(owner, options)
       return {} unless options && options[:headers]
-      headers = options[:headers]
+      headers = options[:headers].dup
       headers.keys.each { |key| headers[key] = owner.send(headers[key]) }
       headers
     end
